@@ -1,4 +1,4 @@
-best <- function(state, outcome) {
+rankhospital <- function(state, outcome, num = "best") {
     ## Read outcome data
     outcomedata <- read.csv("outcome-of-care-measures.csv")
     states <- unique(as.vector(outcomedata$State))
@@ -23,9 +23,20 @@ best <- function(state, outcome) {
         stop ("invalid outcome")
     }
     
-    ## Return hospital name in that state with lowest 30-day death
-    ## ratee
+    ## Return hospital name in that state with the given rank
+    ## 30-day death rate
     outcome.s <- subset(outcomedata, outcomedata[,7] == state & outcomedata[,i] != "Not Available", select = append(datacols, i, after = length(datacols)))
     outcome.s[,3] <- sapply(outcome.s[,3], function(x) {as.numeric(as.character(x))})
-    return(as.character(outcome.s[order(outcome.s[,3]),][1,1]))
+    if (num == "best") {
+        return (as.character(outcome.s[order(outcome.s[,3], outcome.s[,1]),][1,1]))
+    }
+    else if (num == "worst") {
+        return (as.character(outcome.s[order(outcome.s[,3], outcome.s[,1]),][nrow(outcome.s),1]))
+    }
+    else if (is.numeric(num)) {
+        return (as.character(outcome.s[order(outcome.s[,3], outcome.s[,1]),][num,1]))
+    }
+    else {
+        stop ("invalid rank")
+    }
 }
